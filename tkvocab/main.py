@@ -20,15 +20,12 @@ class RecallApp(tk.Tk):
         self.title("tkvocab")
         self.geometry("700x500")
         self.create_widgets()
-        self.show_home()
+        self.show_add()
 
     def create_widgets(self):
         # Menu / Navigation
         menu_frame = ttk.Frame(self)
         menu_frame.pack(side=tk.TOP, fill=tk.X)
-        ttk.Button(menu_frame, text="Home", command=self.show_home).pack(
-            side=tk.LEFT, padx=4, pady=4
-        )
         ttk.Button(menu_frame, text="Add", command=self.show_add).pack(
             side=tk.LEFT, padx=4, pady=4
         )
@@ -46,37 +43,6 @@ class RecallApp(tk.Tk):
     def clear_content(self):
         for child in self.content.winfo_children():
             child.destroy()
-
-    def show_home(self):
-        self.clear_content()
-        row = get_review_word_row()
-        if row is None:
-            lbl = ttk.Label(
-                self.content,
-                text="No words to review. Congrats 🎉",
-                font=("TkDefaultFont", 16),
-            )
-            lbl.pack(pady=20)
-            ttk.Label(
-                self.content, text="Add new words to start spaced repetition."
-            ).pack()
-        else:
-            ttk.Label(
-                self.content, text="Next review word:", font=("TkDefaultFont", 14)
-            ).pack(anchor=tk.W)
-            ttk.Label(
-                self.content, text=row["word"], font=("TkDefaultFont", 20, "bold")
-            ).pack(pady=6)
-            ttk.Label(self.content, text=row["comment"], wraplength=650).pack(pady=6)
-            ttk.Label(self.content, text=f"Interval days: {row['interval_days']}").pack(
-                pady=4
-            )
-            ttk.Label(
-                self.content, text=f"Next review date: {row['next_review_date']}"
-            ).pack(pady=4)
-            ttk.Button(
-                self.content, text="Go to Review", command=self.show_review
-            ).pack(pady=10)
 
     def show_add(self):
         self.clear_content()
@@ -108,7 +74,6 @@ class RecallApp(tk.Tk):
             if not ok:
                 messagebox.showerror("Error", f"Could not add word: {err}")
             else:
-                messagebox.showinfo("Added", f"Added '{word}'")
                 word_entry.delete(0, tk.END)
                 comment_txt.delete("1.0", tk.END)
 
@@ -181,10 +146,7 @@ class RecallApp(tk.Tk):
         def make_update(days):
             def _():
                 update_review_date(row["word"], days)
-                messagebox.showinfo(
-                    "Updated", f"Next review scheduled in {days} day(s)."
-                )
-                self.show_home()
+                self.show_review()
 
             return _
 
